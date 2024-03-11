@@ -1,0 +1,3 @@
+/home/qhawkins/Desktop/HAR2/build/CMakeFiles/HAR2.dir
+/home/qhawkins/Desktop/HAR2/build/CMakeFiles/edit_cache.dir
+/home/qhawkins/Desktop/HAR2/build/CMakeFiles/rebuild_cache.dir

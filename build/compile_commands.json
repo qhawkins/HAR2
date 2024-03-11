@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/qhawkins/Desktop/HAR2/build",
+  "command": "/usr/bin/g++ -I/home/qhawkins/Desktop/Eigen/eigen/Eigen -I/home/qhawkins/Desktop/HAR2/include -g -o CMakeFiles/HAR2.dir/main.cpp.o -c /home/qhawkins/Desktop/HAR2/main.cpp",
+  "file": "/home/qhawkins/Desktop/HAR2/main.cpp"
+}
+]
