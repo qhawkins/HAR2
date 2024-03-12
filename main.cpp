@@ -159,14 +159,16 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     double sumOfSquaredResiduals = 0.0;
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
-        double prediction = x[0] + ((x[1] + x[4] * std::pow(harqData->rq_d[i], .5)) * harqData->rv_d[i]) + 
-                            ((x[2] + x[5] * std::pow(harqData->rq_w[i], .5)) * harqData->rv_w[i]) + 
-                            ((x[3] + x[6] * std::pow(harqData->rq_m[i], .5)) * harqData->rv_m[i]);
 
+        double prediction = harqData->rv[i]-x[0] - ((x[1] + x[4] * std::pow(harqData->rq_d[i], .5)) * harqData->rv_d[i]) - 
+                            ((x[2] + x[5] * std::pow(harqData->rq_w[i], .5)) * harqData->rv_w[i]) - 
+                            ((x[3] + x[6] * std::pow(harqData->rq_m[i], .5)) * harqData->rv_m[i]);
+        double residual = std::pow(prediction, 2);
         
-        double residual = harqData->rv[i] - prediction;
-        sumOfSquaredResiduals += residual * residual;
-        //std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
+        //double residual = harqData->rv[i] - prediction;
+        
+        sumOfSquaredResiduals += residual;
+        std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
         if (grad) {
             grad[0] += -2 * residual; // dS/dβ0
             grad[1] += -2 * residual * harqData->rv_d[i]; // dS/dβ1
@@ -175,12 +177,12 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             grad[4] += -2 * residual * harqData->rq_d[i] * harqData->rv_d[i]; // dS/dβ1Q
             grad[5] += -2 * residual * harqData->rq_w[i] * harqData->rv_w[i]; // dS/dβ2Q
             grad[6] += -2 * residual * harqData->rq_m[i] * harqData->rv_m[i]; // dS/dβ3Q
-            //std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
-            //std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
+            std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
+            std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
         }
     }
 
-    //exit(1038);
+    exit(1038);
     
     return sumOfSquaredResiduals;
 }
