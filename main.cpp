@@ -165,7 +165,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         
         double residual = harqData->rv[i] - prediction;
         sumOfSquaredResiduals += residual * residual;
-        std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
+        //std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
         if (grad) {
             grad[0] += -2 * residual; // dS/dβ0
             grad[1] += -2 * residual * harqData->rv_d[i]; // dS/dβ1
@@ -201,9 +201,9 @@ std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
     dayQuarticity = calculateVariance(prices[21])[1];
     //std::cout << "actual variance" << std::endl;
     actualVariance = calculateVariance(prices[22])[0];
-    std::cout << "actualVariance: " << actualVariance << std::endl;
-    std::cout << std::accumulate(prices[22].begin(), prices[22].end(), 0.0) << std::endl;
-    exit(100);
+    //std::cout << "actualVariance: " << actualVariance << std::endl;
+    //std::cout << std::accumulate(prices[22].begin(), prices[22].end(), 0.0) << std::endl;
+    //exit(100);
     for (int i = 17; i < 22; ++i){
         quarticity = calculateVariance(prices[i])[1];
         variance = calculateVariance(prices[i])[0];
