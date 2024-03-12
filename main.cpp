@@ -217,7 +217,7 @@ std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
         accMonthVariance += variance/22;
     }
 
-    return {actualVariance, dayQuarticity, dayVariance, accWeekQuarticity, accWeekVariance, accMonthQuarticity, accMonthVariance};
+    return {actualVariance, dayVariance, accWeekVariance, accMonthVariance, dayQuarticity, accWeekQuarticity, accMonthQuarticity};
 
 }
 
@@ -297,49 +297,64 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     
     std::vector<std::vector<double>> metrics = accumulateDWMMetrics(intradayGrouped, day, optim_horizon, dayIdxs);
 
-    Eigen::MatrixXd X(metrics.size(), 5);  // Predictor matrix including intercept
-    Eigen::VectorXd y(metrics.size());     // Response vector (RV_t)
     std::vector<double> selMetrics;
 
     std::vector<double> dRV;
     std::vector<double> wRV;
     std::vector<double> mRV;
+    std::vector<double> dQ;
+    std::vector<double> wQ;
+    std::vector<double> mQ;
     std::vector<double> rv;
+
+    //actualVariance, dayVariance, accWeekVariance, accMonthVariance, dayQuarticity, accWeekQuarticity, accMonthQuarticity
 
     for (size_t i  = 0; i < metrics.size(); ++i){
         selMetrics = metrics[i];
-        dRV.push_back(selMetrics[2]);
-        wRV.push_back(selMetrics[4]);
-        mRV.push_back(selMetrics[6]);
         rv.push_back(selMetrics[0]);
-    }
+        dRV.push_back(selMetrics[1]);
+        wRV.push_back(selMetrics[2]);
+        mRV.push_back(selMetrics[3]);
+        dQ.push_back(selMetrics[4]);
+        wQ.push_back(selMetrics[5]);
+        mQ.push_back(selMetrics[6]);
+        }
 
     HarqModelData harqData {
         .rv_d = dRV,
         .rv_w = wRV,
         .rv_m = mRV,
+        .rq_d = dQ,
+        .rq_w = wQ,
+        .rq_m = mQ,
         .rv = rv
     };
 
-    double dQuarticity = selMetrics[1];
+    double dVariance = selMetrics[1];
+    double wVariance = selMetrics[2];
+    double mVariance = selMetrics[3];
     
-    double dVariance = selMetrics[2];
-    double wVariance = selMetrics[4];
-    double mVariance = selMetrics[6];
+    double dQuarticity = selMetrics[4];
+    double wQuarticity = selMetrics[5];
+    double mQuarticity = selMetrics[6];
 
-    std::vector<double> betas(4);
+
+    std::vector<double> betas(7);
     betas[0] = .01;
     betas[1] = .5;
     betas[2] = .3;
     betas[3] = .1;
+    betas[4] = .3;
+    betas[5] = .3;
+    betas[6] = .3;
     //betas[4] = -.3;
 
     nlopt::algorithm alg = nlopt::LD_SLSQP;
 
-    nlopt::opt optimizer = nlopt::opt(alg, 4);
+    nlopt::opt optimizer = nlopt::opt(alg, 7);
 
-    std::vector<double> lb(4, -.5);
-    std::vector<double> ub(4, 1);
+    std::vector<double> lb(7, -.5);
+    std::vector<double> ub(7, 1);
 
 
     optimizer.set_min_objective(objectiveFunction, &harqData);
@@ -362,6 +377,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double beta1 = betas[1];
     double beta2 = betas[2];
     double beta3 = betas[3];
+
     double beta1q = betas[4];
     double beta2q = betas[5];
     double beta3q = betas[6];
@@ -370,8 +386,8 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << std::endl;
 
     double u = minf;
-    
-    return {beta0, beta1, beta1q, beta2, beta3, dQuarticity, dVariance, wVariance, mVariance, u};
+
+    return {beta0, beta1, beta2, beta3, beta1q, beta2q, beta3q, dQuarticity, wQuarticity, mQuarticity, dVariance, wVariance, mVariance, u};
 
 }
 
