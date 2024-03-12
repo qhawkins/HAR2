@@ -274,8 +274,8 @@ double calcHARQIv(std::vector<double>& inputs){
 
 
     double harq = beta0 + (beta1 + (beta1q*std::pow(dQuarticity, .5)*dVariance)) + 
-                    (beta2 + (beta2q*std::pow(wQuarticity, .5)*wVariance)) + 
-                    (beta3 + (beta3q*std::pow(mQuarticity, .5)*mVariance));
+                    (beta2 * wVariance) + 
+                    (beta3 * mVariance);
     
     
     //double transformed_harq = std::exp(harq)-1;
@@ -376,7 +376,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     optimizer.set_min_objective(objectiveFunction, &harqData);
     //optimizer.set_xtol_rel(1e-2);
-    //optimizer.set_maxeval(1000000);
+    optimizer.set_maxeval(1000000);
     //optimizer.set_stopval(1e-20);
     //optimizer.set_ftol_rel(1e-20);
     //optimizer.set_xtol_abs(1e-3);
