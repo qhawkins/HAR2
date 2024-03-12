@@ -259,8 +259,10 @@ double calcHARQIv(std::vector<double>& inputs){
     double u = inputs[13];
 
 
-    double harq = beta0 + (beta1*dVariance)+(beta2*wVariance)+(beta3*mVariance)+
-                    (beta1q*dQuarticity)+(beta2q*wQuarticity)+(beta3q*mQuarticity);//+u;
+    double harq = beta0 + (beta1 + (beta1q*std::pow(dQuarticity, .5)*dVariance)) + 
+                    (beta2 + (beta2q*std::pow(wQuarticity, .5)*wVariance)) + 
+                    (beta3 + (beta3q*std::pow(mQuarticity, .5)*mVariance));
+    
     
     //double transformed_harq = std::exp(harq)-1;
 
@@ -269,6 +271,18 @@ double calcHARQIv(std::vector<double>& inputs){
     //std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta1q: " << beta1q << " beta2: " << beta2 << " beta3: " << beta3 << " u: " << u << "\n";
 
     return iv;
+}
+
+std::vector<std::vector<double>> parseDays(std::vector<double>& prices, std::vector<int> dayGroups, int day){
+    std::vector<std::vector<double>> intradayGrouped;
+    std::vector<double> dayPrices;
+    //std::cout << "parse days day: " << day << std::endl;
+    for (int i = day-22; i <= day; ++i){
+        dayPrices = std::vector<double>(prices.begin()+dayGroups[i], prices.begin()+dayGroups[i+1]);
+        //std::cout << "day prices at i: " << i << " size: " << dayPrices.size() << " and value of " << std::accumulate(dayPrices.begin(), dayPrices.end(), 0.0) << std::endl;
+        intradayGrouped.push_back(dayPrices);
+    }
+    return intradayGrouped;    
 }
 
 int main() {
