@@ -97,11 +97,12 @@ std::vector<double> calculateIntradayReturns(const std::vector<double>& prices) 
     //std::cout << "intraday prices size: " << prices.size() << std::endl;
     for (size_t i = 0; i < prices.size()-1; ++i) {
         //std::cout << i << std::endl;
-        double return_i = (prices[i+1] - prices[i]);
+        double return_i = (prices[i+1]/prices[i]);
+        double log_return = std::log(return_i);
         //std::cout << "return_i: " << return_i << std::endl;
-        returns.push_back(return_i);
+        returns.push_back(log_return);
+        //std::cout << "log_return: " << log_return << std::endl;
     }
-    //exit(10384);
     return returns;
 }
 
