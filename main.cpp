@@ -383,14 +383,21 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double beta3q = betas[6];
 
     double u = minf;
-    
+
     std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta2: " << beta2 << " beta3: " 
     << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << " u: " << u << std::endl;
 
-
-
     return {beta0, beta1, beta2, beta3, beta1q, beta2q, beta3q, dQuarticity, wQuarticity, mQuarticity, dVariance, wVariance, mVariance, u};
 
+}
+
+double trueIv(std::vector<double>& prices, std::vector<int>& dayIdxs, int day){
+    std::vector<double> dayPrices = std::vector<double>(prices.begin()+dayIdxs[day], prices.begin()+dayIdxs[day+1]);
+    double realizedVariance = calculateVariance(dayPrices)[0];
+    double iv = std::pow(realizedVariance, .5)*std::pow(252, .5)*100;
+    //std::cout << "real realizedVariance: " << realizedVariance << " real IV: " << iv << std::endl;
+    
+    return iv;
 }
 
 
