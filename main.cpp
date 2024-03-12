@@ -201,7 +201,9 @@ std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
     dayQuarticity = calculateVariance(prices[21])[1];
     //std::cout << "actual variance" << std::endl;
     actualVariance = calculateVariance(prices[22])[0];
-    //std::cout << "actualVariance: " << actualVariance << std::endl;
+    std::cout << "actualVariance: " << actualVariance << std::endl;
+    std::cout << std::accumulate(prices[22].begin(), prices[22].end(), 0.0) << std::endl;
+    exit(100);
     for (int i = 17; i < 22; ++i){
         quarticity = calculateVariance(prices[i])[1];
         variance = calculateVariance(prices[i])[0];
