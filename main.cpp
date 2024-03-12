@@ -407,11 +407,11 @@ int main() {
     
     std::vector<int> dayGroups = dayGroupsIdx(timestamps);
 
-    int trainHorizon =22;
+    int trainHorizon = 22;
 
     std::cout << "Day groups size: " << dayGroups.size() << std::endl;
     
-    std::vector<double> inputs = std::vector<double>(10, 0);
+    std::vector<double> inputs = std::vector<double>(14, 0);
     
     for (int i  = trainHorizon+22; i < dayGroups.size()-1; ++i){
         inputs = trainHarq(prices, dayGroups, trainHorizon, i);
