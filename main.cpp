@@ -160,9 +160,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
 
-        double prediction = harqData->rv[i]-x[0] - ((x[1] + x[4] * std::pow(harqData->rq_d[i], .5)) * harqData->rv_d[i]) - 
-                            ((x[2] + x[5] * std::pow(harqData->rq_w[i], .5)) * harqData->rv_w[i]) - 
-                            ((x[3] + x[6] * std::pow(harqData->rq_m[i], .5)) * harqData->rv_m[i]);
+        double prediction = harqData->rv[i]-x[0] - ((x[1] - x[4] * std::pow(harqData->rq_d[i], .5)) * harqData->rv_d[i]) - 
+                            ((x[2] - x[5] * std::pow(harqData->rq_w[i], .5)) * harqData->rv_w[i]) - 
+                            ((x[3] - x[6] * std::pow(harqData->rq_m[i], .5)) * harqData->rv_m[i]);
         double residual = std::pow(prediction, 2);
         
         //double residual = harqData->rv[i] - prediction;
@@ -182,7 +182,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         }
     }
 
-    exit(1038);
+    //exit(1038);
     
     return sumOfSquaredResiduals;
 }
