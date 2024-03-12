@@ -149,6 +149,8 @@ struct HarqModelData {
     std::vector<double> rv_w; // Weekly realized variance
     std::vector<double> rv_m; // Monthly realized variance
     std::vector<double> rq_d;  // Daily realized quarticity
+    std::vector<double> rq_w;  // Weekly realized quarticity
+    std::vector<double> rq_m;  // Monthly realized quarticity
     std::vector<double> rv;   // Actual realized variance values for the objective function calculation
 };
 
@@ -157,11 +159,11 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     double sumOfSquaredResiduals = 0.0;
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
-        double prediction = x[0] // β0
-                             + (x[1] + x[4] * harqData->rq_d[i]) * harqData->rv_d[i] // (β1 + β1Q * RQ_t_d-1) * RV_t_d-1
-                             + x[2] * harqData->rv_w[i] // β2 * RV_t_w-1
-                             + x[3] * harqData->rv_m[i]; // β3 * RV_t_m-1
+        double prediction = x[0] + ((x[1] + x[4] * std::pow(harqData->rq_d[i], .5)) *harqData->rv_d[i]) + 
+                            ((x[2] + x[5] * std::pow(harqData->rq_w[i], .5)) * harqData->rv_w[i]) + 
+                            ((x[3] + x[6] * std::pow(harqData->rq_m[i], .5)) * harqData->rv_m[i]);
 
+        
         double residual = harqData->rv[i] - prediction;
         sumOfSquaredResiduals += residual * residual;
 
@@ -171,11 +173,11 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             grad[2] += -2 * residual * harqData->rv_w[i]; // dS/dβ2, similar for others
             grad[3] += -2 * residual * harqData->rv_m[i]; // dS/dβ3
             grad[4] += -2 * residual * harqData->rq_d[i] * harqData->rv_d[i]; // dS/dβ1Q
+            grad[5] += -2 * residual * harqData->rq_w[i] * harqData->rv_w[i]; // dS/dβ2Q
+            grad[6] += -2 * residual * harqData->rq_m[i] * harqData->rv_m[i]; // dS/dβ3Q
         }
-
     }
-    //std::cout << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << sumOfSquaredResiduals << std::endl;
-
+    
     return sumOfSquaredResiduals;
 }
 
@@ -218,6 +220,25 @@ std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
     return {actualVariance, dayQuarticity, dayVariance, accWeekQuarticity, accWeekVariance, accMonthQuarticity, accMonthVariance};
 
 }
+
+std::vector<std::vector<double>> accumulateDWMMetrics(std::vector<std::vector<std::vector<double>>>& prices, int endDay, int optimHorizon, std::vector<int>& dayIdxs){
+    std::vector<std::vector<double>> metrics;
+    std::vector<std::vector<double>> selPrices;
+    int startIdx, endIdx;
+
+    for (int i = 0; i < optimHorizon; ++i ){
+        //startIdx = dayIdxs[i];
+        //endIdx = dayIdxs[i+1];
+        selPrices = prices[i];
+        //std::cout << "selPrices size: " << selPrices.size() << std::endl;
+        metrics.push_back(calcDWMMetrics(selPrices));
+    }
+
+    //metrics=calcDWMMetrics(selPrices));
+
+    return metrics;
+}
+
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
