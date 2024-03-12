@@ -285,6 +285,97 @@ std::vector<std::vector<double>> parseDays(std::vector<double>& prices, std::vec
     return intradayGrouped;    
 }
 
+std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& dayIdxs, int optim_horizon, int day){
+    std::vector<std::vector<std::vector<double>>> intradayGrouped;
+    for (int i = day-optim_horizon; i < day; ++i){
+        //std::cout << "i: " << i << std::endl;
+        intradayGrouped.push_back(parseDays(prices, dayIdxs, i));    
+    }
+    //exit(1028382);
+    std::cout << intradayGrouped.size() << std::endl;
+    //std::cout << "intradayGrouped size: " << intradayGrouped.size() << std::endl;
+    
+    std::vector<std::vector<double>> metrics = accumulateDWMMetrics(intradayGrouped, day, optim_horizon, dayIdxs);
+
+    Eigen::MatrixXd X(metrics.size(), 5);  // Predictor matrix including intercept
+    Eigen::VectorXd y(metrics.size());     // Response vector (RV_t)
+    std::vector<double> selMetrics;
+
+    std::vector<double> dRV;
+    std::vector<double> wRV;
+    std::vector<double> mRV;
+    std::vector<double> rv;
+
+    for (size_t i  = 0; i < metrics.size(); ++i){
+        selMetrics = metrics[i];
+        dRV.push_back(selMetrics[2]);
+        wRV.push_back(selMetrics[4]);
+        mRV.push_back(selMetrics[6]);
+        rv.push_back(selMetrics[0]);
+    }
+
+    HarqModelData harqData {
+        .rv_d = dRV,
+        .rv_w = wRV,
+        .rv_m = mRV,
+        .rv = rv
+    };
+
+    double dQuarticity = selMetrics[1];
+    
+    double dVariance = selMetrics[2];
+    double wVariance = selMetrics[4];
+    double mVariance = selMetrics[6];
+
+    std::vector<double> betas(4);
+    betas[0] = .01;
+    betas[1] = .5;
+    betas[2] = .3;
+    betas[3] = .1;
+    //betas[4] = -.3;
+
+    nlopt::algorithm alg = nlopt::LD_SLSQP;
+
+    nlopt::opt optimizer = nlopt::opt(alg, 4);
+
+    std::vector<double> lb(4, -.5);
+    std::vector<double> ub(4, 1);
+
+
+    optimizer.set_min_objective(objectiveFunction, &harqData);
+    //optimizer.set_xtol_rel(1e-2);
+    optimizer.set_maxeval(10000);
+    optimizer.set_stopval(1e-20);
+    optimizer.set_lower_bounds(lb);
+    optimizer.set_upper_bounds(ub);
+    
+    double minf; /* the minimum objective value, upon return */
+
+    try{
+        nlopt::result result = optimizer.optimize(betas, minf);
+    }
+    catch(std::exception &e){
+        std::cout << "nlopt failed: " << e.what() << std::endl;
+    }
+
+    double beta0 = betas[0];
+    double beta1 = betas[1];
+    double beta2 = betas[2];
+    double beta3 = betas[3];
+    double beta1q = betas[4];
+    double beta2q = betas[5];
+    double beta3q = betas[6];
+
+    std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta2: " << beta2 << " beta3: " 
+    << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << std::endl;
+
+    double u = minf;
+    
+    return {beta0, beta1, beta1q, beta2, beta3, dQuarticity, dVariance, wVariance, mVariance, u};
+
+}
+
+
 int main() {
     std::cout << "Hello, World!" << std::endl;
     return 0;
