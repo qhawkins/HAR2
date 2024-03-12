@@ -173,7 +173,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         //double residual = harqData->rv[i] - prediction;
         
         sumOfSquaredResiduals += residual;
-        std::cout << "residual: " << residual << " prediction: " << fi << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
+        //std::cout << "residual: " << residual << " prediction: " << fi << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
 
         if (grad) {
             grad[0] += -2 * fi;  // Direct derivative
@@ -183,7 +183,8 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             grad[4] += 2 * fi * (-sqrt_rq_d * harqData->rv_d[i]);  // Interaction term
             grad[5] += 2 * fi * (-sqrt_rq_w * harqData->rv_w[i]);
             grad[6] += 2 * fi * (-sqrt_rq_m * harqData->rv_m[i]);//std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
-            std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
+            //std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
+            std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
         }
     }
 
