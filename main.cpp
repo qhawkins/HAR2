@@ -99,7 +99,7 @@ std::vector<double> calculateIntradayReturns(const std::vector<double>& prices) 
         //std::cout << i << std::endl;
         double return_i = (prices[i+1] - prices[i]);
         //std::cout << "return_i: " << return_i << std::endl;
-        returns.push_back(std::pow(return_i, 2));
+        returns.push_back(return_i);
     }
     //exit(10384);
     return returns;
