@@ -161,11 +161,8 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
-        double sqrt_rq_d = std::sqrt(harqData->rq_d[i]);
-        double sqrt_rq_w = std::sqrt(harqData->rq_w[i]);
-        double sqrt_rq_m = std::sqrt(harqData->rq_m[i]);
-
-        double fi = harqData->rv[i] - x[0] - ((x[1] + (x[4] * sqrt_rq_d)) * harqData->rv_d[i]) -
+        double fi = harqData->rv[i] - x[0] -
+                    (x[1] * harqData->rv_d[i]) -
                     (x[2] * harqData->rv_w[i]) -
                     (x[3] * harqData->rv_m[i]);
         
@@ -248,22 +245,15 @@ double calcHARQIv(std::vector<double>& inputs){
     double beta1 = inputs[1];
     double beta2 = inputs[2];
     double beta3 = inputs[3];
-    double beta1q = inputs[4];
-    double beta2q = inputs[5];
-    double beta3q = inputs[6];
     
-    double dQuarticity = inputs[7];
-    double wQuarticity = inputs[8];
-    double mQuarticity = inputs[9];
-    
-    double dVariance = inputs[10];
-    double wVariance = inputs[11];
-    double mVariance = inputs[12];
+    double dVariance = inputs[4];
+    double wVariance = inputs[5];
+    double mVariance = inputs[6];
 
-    double u = inputs[13];
+    double u = inputs[7];
 
 
-    double harq = beta0 + (beta1 + (beta1q*std::pow(dQuarticity, .5)))*dVariance + 
+    double harq = beta0 + (beta1 * dVariance) + 
                     (beta2 * wVariance) + 
                     (beta3 * mVariance);
     
@@ -337,28 +327,20 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double dVariance = selMetrics[1];
     double wVariance = selMetrics[2];
     double mVariance = selMetrics[3];
-    
-    double dQuarticity = selMetrics[4];
-    double wQuarticity = selMetrics[5];
-    double mQuarticity = selMetrics[6];
 
-
-    std::vector<double> betas(7);
+    std::vector<double> betas(4);
     betas[0] = -.01;
     betas[1] = .6;
     betas[2] = .35;
     betas[3] = .1;
-    betas[4] = -.35;
-    betas[5] = 0;
-    betas[6] = 0;
     //betas[4] = -.3;
 
     nlopt::algorithm alg = nlopt::LN_NELDERMEAD;
 
-    nlopt::opt optimizer = nlopt::opt(alg, 7);
+    nlopt::opt optimizer = nlopt::opt(alg, 4);
 
-    std::vector<double> lb(7, -1);
-    std::vector<double> ub(7, 1);
+    std::vector<double> lb(4, -1);
+    std::vector<double> ub(4, 1);
 
     lb[0] = -0.05;
     ub[0] = 0.05;
@@ -388,17 +370,13 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double beta2 = betas[2];
     double beta3 = betas[3];
 
-    double beta1q = betas[4];
-    double beta2q = betas[5];
-    double beta3q = betas[6];
-
     double u = minf;
 
     std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta2: " << beta2 << " beta3: " 
-    << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << " u: " << u << std::endl;
+    << beta3 << " u: " << u << std::endl;
 
 
-    return {beta0, beta1, beta2, beta3, beta1q, beta2q, beta3q, dQuarticity, wQuarticity, mQuarticity, dVariance, wVariance, mVariance, u};
+    return {beta0, beta1, beta2, beta3, dVariance, wVariance, mVariance, u};
 
 }
 
