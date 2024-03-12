@@ -171,9 +171,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             grad[1] += -2 * residual * harqData->rv_d[i]; // dS/dβ1
             grad[2] += -2 * residual * harqData->rv_w[i]; // dS/dβ2, similar for others
             grad[3] += -2 * residual * harqData->rv_m[i]; // dS/dβ3
-            grad[4] += -2 * residual * harqData->rq_d[i] * harqData->rv_d[i]; // dS/dβ1Q
-            grad[5] += -2 * residual * harqData->rq_w[i] * harqData->rv_w[i]; // dS/dβ2Q
-            grad[6] += -2 * residual * harqData->rq_m[i] * harqData->rv_m[i]; // dS/dβ3Q
+            grad[4] += -2 * residual * std::pow(harqData->rq_d[i] * harqData->rv_d[i], .5); // dS/dβ1Q
+            grad[5] += -2 * residual * std::pow(harqData->rq_w[i] * harqData->rv_w[i], .5); // dS/dβ2Q
+            grad[6] += -2 * residual * std::pow(harqData->rq_m[i] * harqData->rv_m[i], .5); // dS/dβ3Q
         }
     }
     
