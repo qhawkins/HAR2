@@ -338,9 +338,9 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     //betas[4] = -.3;
     std::vector<double> lb(4);
     lb[0] = -1;
-    lb[1] = -1;
-    lb[2] = -1;
-    lb[3] = -1;
+    lb[1] = 0;
+    lb[2] = 0;
+    lb[3] = 0;
 
     std::vector<double> ub(4);
     ub[0] = 1;
@@ -349,7 +349,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     ub[3] = 1;
 
 
-    nlopt::algorithm alg = nlopt::LN_NELDERMEAD;
+    nlopt::algorithm alg = nlopt::LN_AUGLAG;
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
