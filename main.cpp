@@ -395,14 +395,32 @@ double trueIv(std::vector<double>& prices, std::vector<int>& dayIdxs, int day){
     std::vector<double> dayPrices = std::vector<double>(prices.begin()+dayIdxs[day], prices.begin()+dayIdxs[day+1]);
     double realizedVariance = calculateVariance(dayPrices)[0];
     double iv = std::pow(realizedVariance, .5)*std::pow(252, .5)*100;
-    //std::cout << "real realizedVariance: " << realizedVariance << " real IV: " << iv << std::endl;
     
     return iv;
 }
 
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    std::vector<std::tm> timestamps = loadTimestamps("AAPL_1min_firstratedata.csv");
+
+    std::vector<double> prices = loadPrices("AAPL_1min_firstratedata.csv");
+    
+    std::vector<int> dayGroups = dayGroupsIdx(timestamps);
+
+    int trainHorizon =22;
+
+    std::cout << "Day groups size: " << dayGroups.size() << std::endl;
+    
+    std::vector<double> inputs = std::vector<double>(10, 0);
+    
+    for (int i  = trainHorizon+22; i < dayGroups.size()-1; ++i){
+        inputs = trainHarq(prices, dayGroups, trainHorizon, i);
+        double iv = calcHARQIv(inputs);
+        double true_iv = trueIv(prices, dayGroups, i);
+        std::cout << "Predicted Annualized IV for day " << i << " is " << iv << 
+                "%, True IV is: " << true_iv << "%" << std::endl;
+        }
+
     return 0;
 }
 
