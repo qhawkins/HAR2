@@ -157,10 +157,8 @@ struct HarqModelData {
 double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data) {
     HarqModelData *harqData = reinterpret_cast<HarqModelData *>(f_data);
     double sumOfSquaredResiduals = 0.0;
-    for (int i  = 0; i < 7; ++i){
-        grad[i] = 0;
-    }
     
+
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
         double sqrt_rq_d = std::sqrt(harqData->rq_d[i]);
         double sqrt_rq_w = std::sqrt(harqData->rq_w[i]);
