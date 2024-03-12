@@ -165,7 +165,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         
         double residual = harqData->rv[i] - prediction;
         sumOfSquaredResiduals += residual * residual;
-
+        std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
         if (grad) {
             grad[0] += -2 * residual; // dS/dβ0
             grad[1] += -2 * residual * harqData->rv_d[i]; // dS/dβ1
@@ -176,6 +176,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             grad[6] += -2 * residual * std::pow(harqData->rq_m[i], .5) * harqData->rv_m[i]; // dS/dβ3Q
         }
     }
+
 
     
     return sumOfSquaredResiduals;
