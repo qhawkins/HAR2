@@ -239,6 +239,37 @@ std::vector<std::vector<double>> accumulateDWMMetrics(std::vector<std::vector<st
     return metrics;
 }
 
+double calcHARQIv(std::vector<double>& inputs){
+    double beta0 = inputs[0];
+    double beta1 = inputs[1];
+    double beta2 = inputs[2];
+    double beta3 = inputs[3];
+    double beta1q = inputs[4];
+    double beta2q = inputs[5];
+    double beta3q = inputs[6];
+    
+    double dQuarticity = inputs[7];
+    double wQuarticity = inputs[8];
+    double mQuarticity = inputs[9];
+    
+    double dVariance = inputs[10];
+    double wVariance = inputs[11];
+    double mVariance = inputs[12];
+
+    double u = inputs[13];
+
+
+    double harq = beta0 + (beta1*dVariance)+(beta2*wVariance)+(beta3*mVariance)+
+                    (beta1q*dQuarticity)+(beta2q*wQuarticity)+(beta3q*mQuarticity);//+u;
+    
+    //double transformed_harq = std::exp(harq)-1;
+
+    double iv = std::pow(harq, .5)*std::pow(252, .5)*100;
+    //std::cout << "harq: " << harq << " transformed_harq: " << transformed_harq << " iv: " << iv << "\n";
+    //std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta1q: " << beta1q << " beta2: " << beta2 << " beta3: " << beta3 << " u: " << u << "\n";
+
+    return iv;
+}
 
 int main() {
     std::cout << "Hello, World!" << std::endl;
