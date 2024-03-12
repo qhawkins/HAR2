@@ -127,7 +127,7 @@ std::vector<double> calculateVariance(const std::vector<double>& prices) {
     
     double realizedVariance = std::accumulate(squaredReturns.begin(), squaredReturns.end(), 0.0);
     double realizedQuarticity = std::accumulate(quarticReturns.begin(), quarticReturns.end(), 0.0);
-    realizedQuarticity = realizedQuarticity/(n*3);
+    realizedQuarticity = realizedQuarticity*(n/3);
     //std::cout << "realizedVariance: " << realizedVariance << std::endl;
     return {realizedVariance, realizedQuarticity};
 }
