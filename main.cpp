@@ -165,9 +165,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         double sqrt_rq_w = std::sqrt(harqData->rq_w[i]);
         double sqrt_rq_m = std::sqrt(harqData->rq_m[i]);
 
-        double fi = harqData->rv[i] - x[0] - (x[1] + (x[4] * sqrt_rq_d * harqData->rv_d[i])) -
-                    (x[2] + (x[5] * sqrt_rq_w * harqData->rv_w[i])) -
-                    (x[3] + (x[6] * sqrt_rq_m * harqData->rv_m[i]));
+        double fi = harqData->rv[i] - x[0] - ((x[1] + (x[4] * sqrt_rq_d)) * harqData->rv_d[i]) -
+                    ((x[2] + (x[5] * sqrt_rq_w)) * harqData->rv_w[i]) -
+                    ((x[3] + (x[6] * sqrt_rq_m)) * harqData->rv_m[i]);
         
         double residual = std::pow(fi, 2);
         
@@ -273,9 +273,9 @@ double calcHARQIv(std::vector<double>& inputs){
     double u = inputs[13];
 
 
-    double harq = beta0 + (beta1 + (beta1q*std::pow(dQuarticity, .5)*dVariance)) + 
-                    (beta2 * wVariance) + 
-                    (beta3 * mVariance);
+    double harq = beta0 + (beta1 + (beta1q*std::pow(dQuarticity, .5)))*dVariance + 
+                    (beta2 + (beta2q*std::pow(wQuarticity, .5)))*wVariance + 
+                    (beta3 + (beta3q*std::pow(mQuarticity, .5)))*mVariance;
     
     
     //double transformed_harq = std::exp(harq)-1;
