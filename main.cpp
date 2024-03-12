@@ -382,10 +382,12 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double beta2q = betas[5];
     double beta3q = betas[6];
 
-    std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta2: " << beta2 << " beta3: " 
-    << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << std::endl;
-
     double u = minf;
+    
+    std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta2: " << beta2 << " beta3: " 
+    << beta3 << " beta1q: " << beta1q << " beta2q: " << beta2q << " beta3q: " << beta3q << " u: " << u << std::endl;
+
+
 
     return {beta0, beta1, beta2, beta3, beta1q, beta2q, beta3q, dQuarticity, wQuarticity, mQuarticity, dVariance, wVariance, mVariance, u};
 
