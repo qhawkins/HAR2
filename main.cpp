@@ -158,15 +158,16 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     HarqModelData *harqData = reinterpret_cast<HarqModelData *>(f_data);
     double sumOfSquaredResiduals = 0.0;
     
+    //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
         double sqrt_rq_d = std::sqrt(harqData->rq_d[i]);
         double sqrt_rq_w = std::sqrt(harqData->rq_w[i]);
         double sqrt_rq_m = std::sqrt(harqData->rq_m[i]);
 
-        double fi = harqData->rv[i] - x[0] - (x[1] - (x[4] * sqrt_rq_d * harqData->rv_d[i])) -
-                    (x[2] - (x[5] * sqrt_rq_w * harqData->rv_w[i])) -
-                    (x[3] - (x[6] * sqrt_rq_m * harqData->rv_m[i]));
+        double fi = harqData->rv[i] - x[0] - (x[1] + (x[4] * sqrt_rq_d * harqData->rv_d[i])) -
+                    (x[2] + (x[5] * sqrt_rq_w * harqData->rv_w[i])) -
+                    (x[3] + (x[6] * sqrt_rq_m * harqData->rv_m[i]));
         
         double residual = std::pow(fi, 2);
         
@@ -177,14 +178,14 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
 
         if (grad) {
             grad[0] += -2 * fi;  // Direct derivative
-            grad[1] += 2 * fi * (1 - x[4] * sqrt_rq_d * harqData->rv_d[i]);  // Accounting for the interaction term
-            grad[2] += 2 * fi * (1 - x[5] * sqrt_rq_w * harqData->rv_w[i]);
-            grad[3] += 2 * fi * (1 - x[6] * sqrt_rq_m * harqData->rv_m[i]);
+            grad[1] += 2 * fi * (-x[4] * sqrt_rq_d * harqData->rv_d[i]);  // Accounting for the interaction term
+            grad[2] += 2 * fi * (-x[5] * sqrt_rq_w * harqData->rv_w[i]);
+            grad[3] += 2 * fi * (-x[6] * sqrt_rq_m * harqData->rv_m[i]);
             grad[4] += 2 * fi * (-sqrt_rq_d * harqData->rv_d[i]);  // Interaction term
             grad[5] += 2 * fi * (-sqrt_rq_w * harqData->rv_w[i]);
             grad[6] += 2 * fi * (-sqrt_rq_m * harqData->rv_m[i]);//std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
             //std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
-            std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
+            //std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
         }
     }
 
@@ -353,27 +354,30 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
 
     std::vector<double> betas(7);
-    betas[0] = .0;
-    betas[1] = .0;
-    betas[2] = .0;
-    betas[3] = .0;
-    betas[4] = .0;
-    betas[5] = .0;
-    betas[6] = .0;
+    betas[0] = -.01;
+    betas[1] = .6;
+    betas[2] = .35;
+    betas[3] = .1;
+    betas[4] = -.35;
+    betas[5] = -.1;
+    betas[6] = -.01;
     //betas[4] = -.3;
 
-    nlopt::algorithm alg = nlopt::LD_SLSQP;
+    nlopt::algorithm alg = nlopt::LN_NELDERMEAD;
 
     nlopt::opt optimizer = nlopt::opt(alg, 7);
 
-    std::vector<double> lb(7, -.5);
+    std::vector<double> lb(7, -1);
     std::vector<double> ub(7, 1);
+
+    lb[0] = -0.05;
+    ub[0] = 0.05;
 
 
     optimizer.set_min_objective(objectiveFunction, &harqData);
     //optimizer.set_xtol_rel(1e-2);
-    optimizer.set_maxeval(10000);
-    optimizer.set_stopval(1e-20);
+    optimizer.set_maxeval(1000000);
+    optimizer.set_stopval(1e-10);
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
     
