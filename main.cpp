@@ -7,7 +7,6 @@
 #include <fstream>
 #include <iomanip>
 #include <ctime>
-#include <Dense>
 #include <nlopt.h>
 #include <nlopt.hpp>
 
