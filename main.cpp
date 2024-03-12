@@ -157,28 +157,34 @@ struct HarqModelData {
 double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data) {
     HarqModelData *harqData = reinterpret_cast<HarqModelData *>(f_data);
     double sumOfSquaredResiduals = 0.0;
-
+    for (int i  = 0; i < 7; ++i){
+        grad[i] = 0;
+    }
+    
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
+        double sqrt_rq_d = std::sqrt(harqData->rq_d[i]);
+        double sqrt_rq_w = std::sqrt(harqData->rq_w[i]);
+        double sqrt_rq_m = std::sqrt(harqData->rq_m[i]);
 
-        double prediction = harqData->rv[i]-x[0] - (x[1] - (x[4] * std::pow(harqData->rq_d[i], .5) * harqData->rv_d[i])) - 
-                            (x[2] - (x[5] * std::pow(harqData->rq_w[i], .5) * harqData->rv_w[i])) - 
-                            (x[3] - (x[6] * std::pow(harqData->rq_m[i], .5) * harqData->rv_m[i]));
-        double residual = std::pow(prediction, 2);
+        double fi = harqData->rv[i] - x[0] - (x[1] - (x[4] * sqrt_rq_d * harqData->rv_d[i])) -
+                    (x[2] - (x[5] * sqrt_rq_w * harqData->rv_w[i])) -
+                    (x[3] - (x[6] * sqrt_rq_m * harqData->rv_m[i]));
+        
+        double residual = std::pow(fi, 2);
         
         //double residual = harqData->rv[i] - prediction;
         
         sumOfSquaredResiduals += residual;
         //std::cout << "residual: " << residual << " prediction: " << prediction << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
         if (grad) {
-            grad[0] += -2 * residual; // dS/dβ0
-            grad[1] += -2 * residual * harqData->rv_d[i]; // dS/dβ1
-            grad[2] += -2 * residual * harqData->rv_w[i]; // dS/dβ2, similar for others
-            grad[3] += -2 * residual * harqData->rv_m[i]; // dS/dβ3
-            grad[4] += -2 * residual * std::pow(harqData->rq_d[i], .5) * harqData->rv_d[i]; // dS/dβ1Q
-            grad[5] += -2 * residual * std::pow(harqData->rq_w[i], .5) * harqData->rv_w[i]; // dS/dβ2Q
-            grad[6] += -2 * residual * std::pow(harqData->rq_m[i], .5) * harqData->rv_m[i]; // dS/dβ3Q
-            //std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
-            //std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
+            grad[0] += -2 * fi;  // Direct derivative
+            grad[1] += 2 * fi * (1 - x[4] * sqrt_rq_d * harqData->rv_d[i]);  // Accounting for the interaction term
+            grad[2] += 2 * fi * (1 - x[5] * sqrt_rq_w * harqData->rv_w[i]);
+            grad[3] += 2 * fi * (1 - x[6] * sqrt_rq_m * harqData->rv_m[i]);
+            grad[4] += 2 * fi * (-sqrt_rq_d * harqData->rv_d[i]);  // Interaction term
+            grad[5] += 2 * fi * (-sqrt_rq_w * harqData->rv_w[i]);
+            grad[6] += 2 * fi * (-sqrt_rq_m * harqData->rv_m[i]);//std::cout << "grads: " << grad[0] << " " << grad[1] << " " << grad[2] << " " << grad[3] << " " << grad[4] << " " << grad[5] << " " << grad[6] << "\n";
+                //std::cout << "betas: " << x[0] << " " << x[1] << " " << x[2] << " " << x[3] << " " << x[4] << " " << x[5] << " " << x[6] << "\n";
         }
     }
 
