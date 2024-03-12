@@ -348,16 +348,16 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
 
     std::vector<double> betas(7);
-    betas[0] = .01;
-    betas[1] = .01;
-    betas[2] = .01;
-    betas[3] = .01;
-    betas[4] = .01;
-    betas[5] = .01;
-    betas[6] = .01;
+    betas[0] = .0;
+    betas[1] = .0;
+    betas[2] = .0;
+    betas[3] = .0;
+    betas[4] = .0;
+    betas[5] = .0;
+    betas[6] = .0;
     //betas[4] = -.3;
 
-    nlopt::algorithm alg = nlopt::LD_SLSQP;
+    nlopt::algorithm alg = nlopt::LD_LBFGS;
 
     nlopt::opt optimizer = nlopt::opt(alg, 7);
 
