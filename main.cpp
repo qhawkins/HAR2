@@ -166,7 +166,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
                     (x[2] * harqData->rv_w[i]) -
                     (x[3] * harqData->rv_m[i]);
         
-        double residual = std::pow(fi, 2);
+        double w = 1/std::pow(harqData->rq_d[i], .5);
+
+        double residual = w*std::pow(fi, 2);
         
         //double residual = harqData->rv[i] - prediction;
         
