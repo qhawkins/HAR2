@@ -412,7 +412,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     try{
         nlopt::result result = optimizer.optimize(betas, minf);
-        
+        std::cout << result << std::endl;
     }
     catch(std::exception &e){
         std::cout << "nlopt failed: " << e.what() << std::endl;
