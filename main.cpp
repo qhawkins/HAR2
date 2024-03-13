@@ -398,6 +398,10 @@ double trueIv(std::vector<double>& prices, std::vector<int>& dayIdxs, int day){
     return iv;
 }
 
+double calcMSE(double calcIv, double trueIv){
+    double mse = std::pow((calcIv-trueIv), 2);
+    return mse;
+}
 
 int main() {
     std::vector<std::tm> timestamps = loadTimestamps("AAPL_1min_firstratedata.csv");
@@ -412,13 +416,20 @@ int main() {
     
     std::vector<double> inputs = std::vector<double>(14, 0);
     
+    std::vector<double> ivMSE;
+
     for (int i  = trainHorizon+22; i < dayGroups.size()-1; ++i){
         inputs = trainHarq(prices, dayGroups, trainHorizon, i);
         double iv = calcHARQIv(inputs);
         double true_iv = trueIv(prices, dayGroups, i);
+        double mse = calcMSE(iv, true_iv);
+
+        ivMSE.push_back(mse);
+
         std::cout << "Predicted Annualized IV for day " << i << " is " << iv << 
-                "%, True IV is: " << true_iv << "%" << std::endl;
+                "%, True IV is: " << true_iv << "%, MSE between actual and predicted is: " << mse << std::endl;
         }
+    std::cout << "Mean MSE: " << std::accumulate(ivMSE.begin(), ivMSE.end(), 0.0)/ivMSE.size() << std::endl;
 
     return 0;
 }
