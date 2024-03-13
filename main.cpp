@@ -174,8 +174,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
             sumOfSquaredResiduals += std::pow(k, 2) / 6.0;
         }
     }
-    
-    return sumOfSquaredResiduals/100;
+    return sumOfSquaredResiduals;
 }
 
 std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
@@ -395,11 +394,11 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     //nlopt::algorithm alg = nlopt::GN_AGS;
 
     nlopt_opt opt;
-    opt = nlopt_create(NLOPT_LN_NELDERMEAD, 4);
+    opt = nlopt_create(NLOPT_GN_MLSL, 4);
 
     nlopt_set_lower_bounds(opt, lb.data());
     nlopt_set_upper_bounds(opt, ub.data());
-
+    nlopt_set_maxeval(opt, 10000);
     nlopt_set_min_objective(opt, objectiveFunction, &harqData);
 
     //nlopt::opt optimizer = nlopt::opt(alg, 4);
@@ -433,8 +432,19 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
         //for (auto elem: optimizer.get_xtol_abs()){
         //    std::cout << elem << std::endl;
         //}
-        nlopt_optimize(opt, betas.data(), &dVariance);
+        nlopt_optimize(opt, betas.data(), &minf);
         nlopt_destroy(opt);
+        std::cout << "stopval: " << nlopt_get_stopval(opt) << std::endl;
+        std::cout << "xtol_rel: " << nlopt_get_xtol_rel(opt) << std::endl;
+        std::cout << "ftol_rel: " << nlopt_get_ftol_rel(opt) << std::endl;
+        std::cout << "numevals: " << nlopt_get_numevals(opt) << std::endl;
+        std::cout << "ftol_abs: " << nlopt_get_ftol_abs(opt) << std::endl;
+        std::cout << "maxeval: " << nlopt_get_maxeval(opt) << std::endl;
+        std::cout << "minf: " << minf << std::endl;
+
+
+
+        
     }
     catch(std::exception &e){
         std::cout << "nlopt failed: " << e.what() << std::endl;
