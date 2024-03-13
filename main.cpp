@@ -351,7 +351,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     ub[3] = 1;
 
 
-    nlopt::algorithm alg = nlopt::LN_AUGLAG;
+    nlopt::algorithm alg = nlopt::LN_AUGLAG_EQ;
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
