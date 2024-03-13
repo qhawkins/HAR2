@@ -161,14 +161,16 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
-        double fi = harqData->rv[i] - x[0] -
-                    (x[1] * harqData->rv_d[i]) -
-                    (x[2] * harqData->rv_w[i]) -
-                    (x[3] * harqData->rv_m[i]);
-        
         double w = 1/std::pow(harqData->rq_d[i], .5);
 
-        double residual = w*std::pow(fi, 2);
+        double fi = w*(harqData->rv[i] - x[0] -
+                    (x[1] * harqData->rv_d[i]) -
+                    (x[2] * harqData->rv_w[i]) -
+                    (x[3] * harqData->rv_m[i]));
+        
+
+
+        double residual = std::pow(fi, 2);
         
         //double residual = harqData->rv[i] - prediction;
         
