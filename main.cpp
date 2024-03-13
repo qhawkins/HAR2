@@ -398,7 +398,8 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
-    //optimizer.set_xtol_rel(1e-2);
+    optimizer.set_xtol_rel(1e-2);
+    optimizer.set_ftol_rel(1e-2);
     optimizer.set_maxeval(1000000000);
     optimizer.set_stopval(-HUGE_VAL);
     //optimizer.set_tol
