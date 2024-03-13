@@ -159,7 +159,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     double sumOfSquaredResiduals = 0.0;
     
     //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
-    double regularization_factor = 0.1; // Adjust the regularization strength as needed
+    double regularization_factor = 0.25; // Adjust the regularization strength as needed
     //double regularization_term = regularization_factor * (std::abs(x[1]) + std::abs(x[2]) + std::abs(x[3])); // L1 regularization
     double regularization_term = regularization_factor * (x[1] * x[1] + x[2] * x[2] + x[3] * x[3]); // L2 regularization
 
