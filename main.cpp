@@ -157,46 +157,25 @@ struct HarqModelData {
 double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data) {
     HarqModelData* harqData = reinterpret_cast<HarqModelData*>(f_data);
     double sumOfSquaredResiduals = 0.0;
-    
-    // Initialize gradients to zero
-    for (unsigned i = 0; i < n; ++i) {
-        grad[i] = 0.0;
-    }
+    double k = 4.685; // Tuning constant for Tukey's bisquare estimator
     
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
-        double w = 1 / std::pow(harqData->rq_d[i], 0.5);
-        double w_sqrt = std::sqrt(w);
+        double fi = harqData->rv[i] - x[0] -
+                    (x[1] * harqData->rv_d[i]) -
+                    (x[2] * harqData->rv_w[i]) -
+                    (x[3] * harqData->rv_m[i]);
         
-        double fi = w_sqrt * harqData->rv[i] - x[0] * w_sqrt -
-                    (x[1] * w_sqrt * harqData->rv_d[i]) -
-                    (x[2] * w_sqrt * harqData->rv_w[i]) -
-                    (x[3] * w_sqrt * harqData->rv_m[i]);
+        double absResidual = std::abs(fi);
         
-        double residual = std::pow(fi, 2);
-        
-        sumOfSquaredResiduals += residual;
-        
-        // Calculate gradients
-        grad[0] += -2.0 * fi * w_sqrt;
-        grad[1] += -2.0 * fi * w_sqrt * harqData->rv_d[i];
-        grad[2] += -2.0 * fi * w_sqrt * harqData->rv_w[i];
-        grad[3] += -2.0 * fi * w_sqrt * harqData->rv_m[i];
+        if (absResidual <= k) {
+            double weight = std::pow(1 - std::pow(absResidual / k, 2), 2);
+            sumOfSquaredResiduals += weight * std::pow(fi, 2);
+        } else {
+            sumOfSquaredResiduals += std::pow(k, 2) / 6.0;
+        }
     }
     
-    // Add regularization term and gradients
-    //double regularization_factor = 0.1; // Adjust the regularization strength as needed
-    //double regularization_term = 0.0;
-    
-    // L2 regularization (Ridge)
-    //regularization_term = regularization_factor * (x[1] * x[1] + x[2] * x[2] + x[3] * x[3]);
-    
-    // Regularization gradients
-    //grad[1] += 2.0 * regularization_factor * x[1];
-    //grad[2] += 2.0 * regularization_factor * x[2];
-    //grad[3] += 2.0 * regularization_factor * x[3];
-    
-    double objectiveValue = sumOfSquaredResiduals;// + regularization_term;
-    return objectiveValue;
+    return sumOfSquaredResiduals;
 }
 
 std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
@@ -366,7 +345,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     ub[3] = 1;
 
 
-    nlopt::algorithm alg = nlopt::LD_TNEWTON;
+    nlopt::algorithm alg = nlopt::LN_NELDERMEAD;
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
