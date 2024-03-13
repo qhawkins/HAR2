@@ -238,7 +238,7 @@ std::vector<std::vector<double>> accumulateDWMMetrics(std::vector<std::vector<st
     return metrics;
 }
 
-double calcHARQIv(std::vector<double>& inputs){
+double calcHARQIv(std::vector<double>& inputs, double rv_mean, double rv_stdDev){
     double beta0 = inputs[0];
     double beta1 = inputs[1];
     double beta2 = inputs[2];
@@ -255,10 +255,11 @@ double calcHARQIv(std::vector<double>& inputs){
                     (beta2 * wVariance) + 
                     (beta3 * mVariance);
     
-    
+    double scaled_harq = (harq * rv_stdDev) + rv_mean;
+
     //double transformed_harq = std::exp(harq)-1;
 
-    double iv = std::pow(harq, .5)*std::pow(252, .5)*100;
+    double iv = std::pow(scaled_harq, .5)*std::pow(252, .5)*100;
     //std::cout << "harq: " << harq << " transformed_harq: " << transformed_harq << " iv: " << iv << "\n";
     //std::cout << "beta0: " << beta0 << " beta1: " << beta1 << " beta1q: " << beta1q << " beta2: " << beta2 << " beta3: " << beta3 << " u: " << u << "\n";
 
@@ -311,16 +312,43 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     //actualVariance, dayVariance, accWeekVariance, accMonthVariance, dayQuarticity, accWeekQuarticity, accMonthQuarticity
 
-    for (size_t i  = 0; i < metrics.size(); ++i){
-        selMetrics = metrics[i];
-        rv.push_back(selMetrics[0]);
-        dRV.push_back(selMetrics[1]);
-        wRV.push_back(selMetrics[2]);
-        mRV.push_back(selMetrics[3]);
-        dQ.push_back(selMetrics[4]);
-        wQ.push_back(selMetrics[5]);
-        mQ.push_back(selMetrics[6]);
-        }
+
+    std::vector<double> dRV_mean(optim_horizon), dRV_stdDev(optim_horizon);
+    std::vector<double> wRV_mean(optim_horizon), wRV_stdDev(optim_horizon);
+    std::vector<double> mRV_mean(optim_horizon), mRV_stdDev(optim_horizon);
+    std::vector<double> dQ_mean(optim_horizon), dQ_stdDev(optim_horizon);
+    std::vector<double> wQ_mean(optim_horizon), wQ_stdDev(optim_horizon);
+    std::vector<double> mQ_mean(optim_horizon), mQ_stdDev(optim_horizon);
+    std::vector<double> rv_mean(optim_horizon), rv_stdDev(optim_horizon);
+
+    for (int i = 0; i < optim_horizon; ++i) {
+        std::vector<double> dRV_slice(dRV.begin(), dRV.begin() + i + 1);
+        std::vector<double> wRV_slice(wRV.begin(), wRV.begin() + i + 1);
+        std::vector<double> mRV_slice(mRV.begin(), mRV.begin() + i + 1);
+        std::vector<double> dQ_slice(dQ.begin(), dQ.begin() + i + 1);
+        std::vector<double> wQ_slice(wQ.begin(), wQ.begin() + i + 1);
+        std::vector<double> mQ_slice(mQ.begin(), mQ.begin() + i + 1);
+        std::vector<double> rv_slice(rv.begin(), rv.begin() + i + 1);
+
+        std::tie(dRV_mean[i], dRV_stdDev[i]) = calculateMeanStdDev(dRV_slice);
+        std::tie(wRV_mean[i], wRV_stdDev[i]) = calculateMeanStdDev(wRV_slice);
+        std::tie(mRV_mean[i], mRV_stdDev[i]) = calculateMeanStdDev(mRV_slice);
+        std::tie(dQ_mean[i], dQ_stdDev[i]) = calculateMeanStdDev(dQ_slice);
+        std::tie(wQ_mean[i], wQ_stdDev[i]) = calculateMeanStdDev(wQ_slice);
+        std::tie(mQ_mean[i], mQ_stdDev[i]) = calculateMeanStdDev(mQ_slice);
+        std::tie(rv_mean[i], rv_stdDev[i]) = calculateMeanStdDev(rv_slice);
+    }
+
+
+    for (int i = 0; i < optim_horizon; ++i) {
+        dRV[i] = (dRV[i] - dRV_mean[i]) / dRV_stdDev[i];
+        wRV[i] = (wRV[i] - wRV_mean[i]) / wRV_stdDev[i];
+        mRV[i] = (mRV[i] - mRV_mean[i]) / mRV_stdDev[i];
+        dQ[i] = (dQ[i] - dQ_mean[i]) / dQ_stdDev[i];
+        wQ[i] = (wQ[i] - wQ_mean[i]) / wQ_stdDev[i];
+        mQ[i] = (mQ[i] - mQ_mean[i]) / mQ_stdDev[i];
+        rv[i] = (rv[i] - rv_mean[i]) / rv_stdDev[i];
+    }
 
     HarqModelData harqData {
         .rv_d = dRV,
@@ -390,7 +418,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     << beta3 << " u: " << u << std::endl;
 
 
-    return {beta0, beta1, beta2, beta3, dVariance, wVariance, mVariance, u};
+    return {beta0, beta1, beta2, beta3, dVariance, wVariance, mVariance, u, rv_mean.back(), rv_stdDev.back()};
 
 }
 
@@ -422,17 +450,17 @@ int main() {
     
     std::vector<double> ivMSE;
 
-    for (int i  = trainHorizon+22; i < dayGroups.size()-1; ++i){
+    for (int i = trainHorizon + 22; i < dayGroups.size() - 1; ++i) {
         inputs = trainHarq(prices, dayGroups, trainHorizon, i);
-        double iv = calcHARQIv(inputs);
+        double iv = calcHARQIv(inputs, inputs[8], inputs[9]);
         double true_iv = trueIv(prices, dayGroups, i);
         double mse = calcMSE(iv, true_iv);
 
         ivMSE.push_back(mse);
 
-        std::cout << "Predicted Annualized IV for day " << i << " is " << iv << 
-                "%, True IV is: " << true_iv << "%, MSE between actual and predicted is: " << mse << std::endl;
-        }
+        std::cout << "Predicted Annualized IV for day " << i << " is " << iv
+                  << "%, True IV is: " << true_iv << "%, MSE between actual and predicted is: " << mse << std::endl;
+    }
     std::cout << "Mean MSE: " << std::accumulate(ivMSE.begin(), ivMSE.end(), 0.0)/ivMSE.size() << std::endl;
 
     return 0;
