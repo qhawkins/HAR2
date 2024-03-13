@@ -277,6 +277,16 @@ std::vector<std::vector<double>> parseDays(std::vector<double>& prices, std::vec
     return intradayGrouped;    
 }
 
+std::pair<double, double> calculateMeanStdDev(const std::vector<double>& data) {
+    double sum = std::accumulate(data.begin(), data.end(), 0.0);
+    double mean = sum / data.size();
+
+    double squaredSum = std::inner_product(data.begin(), data.end(), data.begin(), 0.0);
+    double stdDev = std::sqrt((squaredSum / data.size()) - (mean * mean));
+
+    return std::make_pair(mean, stdDev);
+}
+
 std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& dayIdxs, int optim_horizon, int day){
     std::vector<std::vector<std::vector<double>>> intradayGrouped;
     for (int i = day-optim_horizon; i < day; ++i){
