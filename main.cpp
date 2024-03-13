@@ -381,9 +381,9 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     //betas[4] = -.3;
     std::vector<double> lb(4);
     lb[0] = -1;
-    lb[1] = 0.05;
-    lb[2] = 0.05;
-    lb[3] = 1e-10;
+    lb[1] = -1;
+    lb[2] = -1;
+    lb[3] = -1;
 
     std::vector<double> ub(4);
     ub[0] = 1;
@@ -396,6 +396,8 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
+    optimizer.set_min_objective(objectiveFunction, &harqData);
+
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
     optimizer.set_xtol_abs(1e-4);
@@ -407,8 +409,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     //optimizer.set_ftol_rel(1e-8);
     //optimizer.set_ftol_rel(1e-20);
     //optimizer.set_xtol_abs(1e-3);
-    
-    optimizer.set_min_objective(objectiveFunction, &harqData);
+
 
 
     double minf; /* the minimum objective value, upon return */
