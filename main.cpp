@@ -311,7 +311,16 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     std::vector<double> rv;
 
     //actualVariance, dayVariance, accWeekVariance, accMonthVariance, dayQuarticity, accWeekQuarticity, accMonthQuarticity
-
+    for (size_t i = 0; i < metrics.size(); ++i) {
+        selMetrics = metrics[i];
+        rv.push_back(selMetrics[0]);
+        dRV.push_back(selMetrics[1]);
+        wRV.push_back(selMetrics[2]);
+        mRV.push_back(selMetrics[3]);
+        dQ.push_back(selMetrics[4]);
+        wQ.push_back(selMetrics[5]);
+        mQ.push_back(selMetrics[6]);
+    }
 
     std::vector<double> dRV_mean(optim_horizon), dRV_stdDev(optim_horizon);
     std::vector<double> wRV_mean(optim_horizon), wRV_stdDev(optim_horizon);
