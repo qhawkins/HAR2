@@ -396,16 +396,18 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
-    optimizer.set_min_objective(objectiveFunction, &harqData);
-
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
     //optimizer.set_xtol_rel(1e-2);
     optimizer.set_maxeval(10000000);
     optimizer.set_stopval(1e-20);
+    optimizer.set_ftol_rel(1e-8);
     //optimizer.set_ftol_rel(1e-20);
     //optimizer.set_xtol_abs(1e-3);
     
+    optimizer.set_min_objective(objectiveFunction, &harqData);
+
+
     double minf; /* the minimum objective value, upon return */
 
     try{
