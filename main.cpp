@@ -160,7 +160,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     
     //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
     double regularization_factor = 0.1; // Adjust the regularization strength as needed
-    double regularization_term = regularization_factor * (std::abs(x[1]) + std::abs(x[2]) + std::abs(x[3])); // L1 regularization
+    //double regularization_term = regularization_factor * (std::abs(x[1]) + std::abs(x[2]) + std::abs(x[3])); // L1 regularization
+    double regularization_term = regularization_factor * (x[1] * x[1] + x[2] * x[2] + x[3] * x[3]); // L2 regularization
+
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
         double w = 1/std::pow(harqData->rq_d[i], .5);
@@ -180,9 +182,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
 
     double objectiveValue = sumOfSquaredResiduals + regularization_term;
     return objectiveValue;
-
     
-    return sumOfSquaredResiduals;
 }
 
 std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
