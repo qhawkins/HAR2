@@ -159,10 +159,12 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     double sumOfSquaredResiduals = 0.0;
     
     //x1 = beta1, x2 = beta2, x3 = beta3, x4 = beta1q, x5 = beta2q, x6 = beta3q
+    double regularization_factor = 0.1; // Adjust the regularization strength as needed
+    double regularization_term = regularization_factor * (std::abs(x[1]) + std::abs(x[2]) + std::abs(x[3])); // L1 regularization
 
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
         double w = 1/std::pow(harqData->rq_d[i], .5);
-
+   
         double fi = w*std::pow((harqData->rv[i] - x[0] -
                     (x[1] * harqData->rv_d[i]) -
                     (x[2] * harqData->rv_w[i]) -
@@ -175,6 +177,9 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
 
         
     }
+
+    double objectiveValue = sumOfSquaredResiduals + regularization_term;
+    return objectiveValue;
 
     
     return sumOfSquaredResiduals;
