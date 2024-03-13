@@ -163,18 +163,14 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     for (size_t i = 0; i < harqData->rv.size(); ++i) {
         double w = 1/std::pow(harqData->rq_d[i], .5);
 
-        double fi = w*(harqData->rv[i] - x[0] -
+        double fi = w*std::pow((harqData->rv[i] - x[0] -
                     (x[1] * harqData->rv_d[i]) -
                     (x[2] * harqData->rv_w[i]) -
-                    (x[3] * harqData->rv_m[i]));
-        
-
-
-        double residual = std::pow(fi, 2);
+                    (x[3] * harqData->rv_m[i])), 2);
         
         //double residual = harqData->rv[i] - prediction;
         
-        sumOfSquaredResiduals += residual;
+        sumOfSquaredResiduals += fi;
         //std::cout << "residual: " << residual << " prediction: " << fi << " rv: " << harqData->rv[i] << " rv_d: " << harqData->rv_d[i] << " rv_w: " << harqData->rv_w[i] << " rv_m: " << harqData->rv_m[i] << " rq_d: " << harqData->rq_d[i] << " rq_w: " << harqData->rq_w[i] << " rq_m: " << harqData->rq_m[i] << "\n";
 
         
