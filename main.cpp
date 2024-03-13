@@ -399,9 +399,10 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
     //optimizer.set_xtol_rel(1e-2);
-    optimizer.set_maxeval(10000000);
-    optimizer.set_stopval(1e-20);
-    optimizer.set_ftol_rel(1e-8);
+    optimizer.set_maxeval(1000000000);
+    optimizer.set_stopval(-HUGE_VAL);
+    //optimizer.set_tol
+    //optimizer.set_ftol_rel(1e-8);
     //optimizer.set_ftol_rel(1e-20);
     //optimizer.set_xtol_abs(1e-3);
     
@@ -413,6 +414,11 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     try{
         nlopt::result result = optimizer.optimize(betas, minf);
         std::cout << result << std::endl;
+
+        for (auto elem: optimizer.get_xtol_abs()){
+            std::cout << elem << std::endl;
+        }
+
     }
     catch(std::exception &e){
         std::cout << "nlopt failed: " << e.what() << std::endl;
