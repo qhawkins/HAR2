@@ -411,7 +411,7 @@ int main() {
     
     std::vector<int> dayGroups = dayGroupsIdx(timestamps);
 
-    int trainHorizon = 66;
+    int trainHorizon = 66*2;
 
     std::cout << "Day groups size: " << dayGroups.size() << std::endl;
     
