@@ -366,7 +366,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     ub[3] = 1;
 
 
-    nlopt::algorithm alg = nlopt::LD_LBFGS;
+    nlopt::algorithm alg = nlopt::LD_TNEWTON;
 
     nlopt::opt optimizer = nlopt::opt(alg, 4);
 
@@ -375,7 +375,7 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
     //optimizer.set_xtol_rel(1e-2);
-    optimizer.set_maxeval(1000000);
+    optimizer.set_maxeval(10000000);
     optimizer.set_stopval(1e-20);
     //optimizer.set_ftol_rel(1e-20);
     //optimizer.set_xtol_abs(1e-3);
