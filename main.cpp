@@ -175,7 +175,7 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
         }
     }
     
-    return sumOfSquaredResiduals;
+    return sumOfSquaredResiduals/100;
 }
 
 std::vector<double> calcDWMMetrics(std::vector<std::vector<double>>& prices){
@@ -398,8 +398,9 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     optimizer.set_lower_bounds(lb);
     optimizer.set_upper_bounds(ub);
-    optimizer.set_xtol_rel(1e-2);
-    optimizer.set_ftol_rel(1e-2);
+    optimizer.set_xtol_abs(1e-4);
+    optimizer.set_ftol_abs(1e-4);
+    optimizer.set_initial_step(0.1);
     optimizer.set_maxeval(1000000000);
     optimizer.set_stopval(-HUGE_VAL);
     //optimizer.set_tol
