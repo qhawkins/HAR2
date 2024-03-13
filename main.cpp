@@ -184,18 +184,18 @@ double objectiveFunction(unsigned n, const double* x, double* grad, void* f_data
     }
     
     // Add regularization term and gradients
-    double regularization_factor = 0.1; // Adjust the regularization strength as needed
-    double regularization_term = 0.0;
+    //double regularization_factor = 0.1; // Adjust the regularization strength as needed
+    //double regularization_term = 0.0;
     
     // L2 regularization (Ridge)
-    regularization_term = regularization_factor * (x[1] * x[1] + x[2] * x[2] + x[3] * x[3]);
+    //regularization_term = regularization_factor * (x[1] * x[1] + x[2] * x[2] + x[3] * x[3]);
     
     // Regularization gradients
-    grad[1] += 2.0 * regularization_factor * x[1];
-    grad[2] += 2.0 * regularization_factor * x[2];
-    grad[3] += 2.0 * regularization_factor * x[3];
+    //grad[1] += 2.0 * regularization_factor * x[1];
+    //grad[2] += 2.0 * regularization_factor * x[2];
+    //grad[3] += 2.0 * regularization_factor * x[3];
     
-    double objectiveValue = sumOfSquaredResiduals + regularization_term;
+    double objectiveValue = sumOfSquaredResiduals;// + regularization_term;
     return objectiveValue;
 }
 
