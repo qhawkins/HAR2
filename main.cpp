@@ -348,10 +348,10 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double mVariance = selMetrics[3];
 
     std::vector<double> betas(4);
-    betas[0] = .11;
-    betas[1] = .22;
-    betas[2] = .5;
-    betas[3] = .2;
+    betas[0] = 0;
+    betas[1] = 0;
+    betas[2] = 0;
+    betas[3] = 0;
     //betas[4] = -.3;
     std::vector<double> lb(4);
     lb[0] = -1;
