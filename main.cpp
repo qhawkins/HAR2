@@ -328,9 +328,9 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
 
     std::vector<double> betas(4);
     betas[0] = 0;
-    betas[1] = 0;
-    betas[2] = 0;
-    betas[3] = 0;
+    betas[1] = 0.1;
+    betas[2] = 0.1;
+    betas[3] = 1.1e-10;
     //betas[4] = -.3;
     std::vector<double> lb(4);
     lb[0] = -1;
