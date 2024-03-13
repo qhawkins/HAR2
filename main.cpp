@@ -392,19 +392,27 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     ub[3] = 1;
 
 
-    nlopt::algorithm alg = nlopt::LN_NELDERMEAD;
+    //nlopt::algorithm alg = nlopt::GN_AGS;
 
-    nlopt::opt optimizer = nlopt::opt(alg, 4);
+    nlopt_opt opt;
+    opt = nlopt_create(NLOPT_LN_NELDERMEAD, 4);
 
-    optimizer.set_min_objective(objectiveFunction, &harqData);
+    nlopt_set_lower_bounds(opt, lb.data());
+    nlopt_set_upper_bounds(opt, ub.data());
 
-    optimizer.set_lower_bounds(lb);
-    optimizer.set_upper_bounds(ub);
-    optimizer.set_xtol_abs(1e-4);
-    optimizer.set_ftol_abs(1e-4);
-    optimizer.set_initial_step(0.1);
-    optimizer.set_maxeval(1000000000);
-    optimizer.set_stopval(-HUGE_VAL);
+    nlopt_set_min_objective(opt, objectiveFunction, &harqData);
+
+    //nlopt::opt optimizer = nlopt::opt(alg, 4);
+
+//    optimizer.set_min_objective(objectiveFunction, &harqData);
+
+  //  optimizer.set_lower_bounds(lb);
+    //optimizer.set_upper_bounds(ub);
+    //optimizer.set_xtol_abs(1e-4);
+    //optimizer.set_ftol_abs(1e-4);
+    //optimizer.set_initial_step(0.1);
+    //optimizer.set_maxeval(1000);
+    //optimizer.set_stopval();
     //optimizer.set_tol
     //optimizer.set_ftol_rel(1e-8);
     //optimizer.set_ftol_rel(1e-20);
@@ -415,13 +423,18 @@ std::vector<double> trainHarq(std::vector<double>& prices, std::vector<int>& day
     double minf; /* the minimum objective value, upon return */
 
     try{
-        nlopt::result result = optimizer.optimize(betas, minf);
-        std::cout << result << std::endl;
+        //nlopt::result result = optimizer.optimize(betas, minf);
+        //std::cout << result << std::endl;
 
-        for (auto elem: optimizer.get_xtol_abs()){
-            std::cout << elem << std::endl;
-        }
-
+        //for (auto elem: optimizer.get_x_weights()){
+        //    std::cout << elem << std::endl;
+        //}
+        //std::cout << "++++++++++++++++++++++\n";
+        //for (auto elem: optimizer.get_xtol_abs()){
+        //    std::cout << elem << std::endl;
+        //}
+        nlopt_optimize(opt, betas.data(), &dVariance);
+        nlopt_destroy(opt);
     }
     catch(std::exception &e){
         std::cout << "nlopt failed: " << e.what() << std::endl;
